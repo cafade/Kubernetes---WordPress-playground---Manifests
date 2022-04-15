@@ -1,18 +1,39 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: wordpress-mysql-pv-claim
+  namespace: wordpress
+  labels:
+    storage.k8s.io/name: nfs
+spec:
+  accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+    - ReadWriteMany
+  capacity:
+    storage: 1Gi
+  storageClassName: ""
+  persistentVolumeReclaimPolicy: Recycle
+  volumeMode: Filesystem
+  mountOptions:
+    - nfsvers=4.1
+  nfs:
+    server: 10.0.0.34
+    path: /data
+    readOnly: no
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: wordpress-mysql-pv-claim
   namespace: wordpress
   labels:
-    # type: longhorn
-    type: civo-volume
     app: wordpress
+    storage.k8s.io/name: nfs
 spec:
-  # storageClassName: longhorn
-  storageClassName: civo-volume
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
+  storageClassName: ""
   resources:
     requests:
-      storage: 5Gi
-
+      storage: 1Gi
