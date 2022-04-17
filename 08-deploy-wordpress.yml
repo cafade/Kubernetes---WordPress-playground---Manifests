@@ -6,11 +6,16 @@ metadata:
   labels:
     app: wordpress
 spec:
-  ports:
-    - port: 80
   selector:
     app: wordpress
     tier: frontend
+  ports:
+    - port: 80
+  # type: NodePort
+  # ports:
+  #   - targetPort: 80
+  #     port: 80
+  #     nodePort: 32313
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -20,18 +25,19 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "traefik"
     cert-manager.io/cluster-issuer: letsencrypt-prod-wp
+    # acme.cert-manager.io/http01-edit-in-place: "true"
     ingress.kubernetes.io/ssl-redirect: "true"
   labels:
     app: wordpress
 spec:
   tls:
   - hosts:
-    # - "*.learninsk8s.ml" # wildcard only works with dns01 solver config in the cluster-issuer, this requires DNS provider API keys. 
+    # - "*.ddc-k8s.ml" # wildcard only works with dns01 solver config in the cluster-issuer, this requires DNS provider API keys. 
                            # See: https://cert-manager.io/docs/configuration/acme/dns01/#supported-dns01-providers, https://cert-manager.io/docs/configuration/acme/dns01/cloudflare/
-    - learninsk8s.ml
+    - web.ddc-k8s.ml
     secretName: letsencrypt-prod-wp
   rules:
-  - host: www.learninsk8s.ml
+  - host: www.web.ddc-k8s.ml
     http:
       paths:
       - path: /
@@ -41,7 +47,7 @@ spec:
             name: wordpress
             port:
               number: 80
-  - host: learninsk8s.ml
+  - host: web.ddc-k8s.ml
     http:
       paths:
       - path: /
